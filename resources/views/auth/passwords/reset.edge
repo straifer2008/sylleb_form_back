@@ -1,0 +1,48 @@
+@layout('layout.app')
+
+@section('content')
+  <div class="columns">
+      <div class="column is-4 is-offset-4">
+          <h2 class="title has-text-centered">Reset password</h2>
+
+          @include('includes.notification')
+
+          <form action="/password/email" method="POST">
+            {{ csrfField() }}
+
+            <input type="hidden" name="token" value="{{ token }}">
+
+            <div class="field">
+                <label class="label">New password</label>
+                <div class="control">
+                    <input
+                        type="password"
+                        name='password'
+                        class="input {{hasErrorFor('password') ? 'is-danger' : ''}}"
+                        value="{{ old('password', '') }}">
+                </div>
+
+                {{ elIf('<span class="help is-danger">$self</span>', getErrorFor('password'), hasErrorFor('password')) }}
+            </div>
+
+            <div class="field">
+                <label class="label">Confirm new password</label>
+                <div class="control">
+                    <input
+                        type="password"
+                        name='password_confirmation'
+                        class="input {{hasErrorFor('password_confirmation') ? 'is-danger' : ''}}"
+                        value="{{ old('password_confirmation', '') }}">
+                </div>
+
+                {{ elIf('<span class="help is-danger">$self</span>', getErrorFor('password_confirmation'), hasErrorFor('password_confirmation')) }}
+            </div>
+
+            <div class="control">
+                <button type="submit" class="button is-dark is-fullwidth is-capitalized">Reset password</button>
+            </div>
+
+          </form>
+      </div>
+  </div>
+@endsection
