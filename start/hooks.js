@@ -7,7 +7,7 @@ hooks.after.providersBooted(() => {
     const Env = use('Env')
 
     View.global('appUrl', path => {
-        const APP_URL = Env.get('APP_URL')
+        const APP_URL = Env.get('FRONT_URL')
 
         return path ? `${APP_URL}/${path}` : APP_URL
     })

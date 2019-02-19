@@ -25,13 +25,14 @@ class RegisterController {
             email: 'required|email|unique:users,email',
             password: 'required'
         }
+
         const validation = await validate(request.all(), rules)
         if (validation.fails()) {
           session
             .withErrors(validation.messages())
             .flashExcept(['password'])
-
-          return response.redirect('back')
+            
+          return response.status(400).send(validation.messages());
         }
 
         //
@@ -60,14 +61,17 @@ class RegisterController {
         //Display success message
         //
 
-        session.flash({
-            notification: {
-                type:    'success',
-                message: 'Registration successful! A email has been sent to your email address, please confirm him.'
-            }
-        })
+        // session.flash({
+        //     notification: {
+        //         type:    'success',
+        //         message: 'Registration successful! A email has been sent to your email address, please confirm him.'
+        //     }
+        // })
 
-        return response.redirect('login')
+        return response.status(200).send({
+          token: user.confirmation_token,
+          message: "Congratulation, register is success. We sen to your email address confirmation link, please confirm him."
+        })
     }
 
     async confirmEmail({

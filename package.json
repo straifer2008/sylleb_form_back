@@ -31,7 +31,9 @@
     "mysql": "^2.16.0",
     "randomstring": "^1.1.5"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "redux-devtools": "^3.5.0"
+  },
   "autoload": {
     "App": "./app"
   }
