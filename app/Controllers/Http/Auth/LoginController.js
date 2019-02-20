@@ -13,7 +13,6 @@ class LoginController {
   async login({
     request,
     auth,
-    session,
     response
   }) {
     //
@@ -45,21 +44,20 @@ class LoginController {
         //
         await auth.remember(!!remember).login(user)
 
-        return response.route('home')
+        return response.status(200).send({
+          userToken: user.register_user_token,
+          message: 'User verify is success'
+        })
       }
     }
 
     //
     // Display error message
     //
-    session.flash({ 
-        notification: {
-            type: 'danger',
-            message: `We couldn't verify user credentials. Make sure you've confirmed your email address`
-        }
+    return response.status(400).send({
+      type: 'danger',
+      message: `We couldn't verify user credentials. Make sure you've confirmed your email address`
     })
-
-    return response.redirect('back')
   }
 }
 

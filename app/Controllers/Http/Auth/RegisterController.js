@@ -44,7 +44,10 @@ class RegisterController {
             password : request.input('password', ''),
             confirmation_token: randomstring.generate({
               length: 40
-            })
+            }),
+            register_user_token: randomstring.generate({
+              length: 40
+            }),
         })
 
         //
@@ -61,13 +64,6 @@ class RegisterController {
         //Display success message
         //
 
-        // session.flash({
-        //     notification: {
-        //         type:    'success',
-        //         message: 'Registration successful! A email has been sent to your email address, please confirm him.'
-        //     }
-        // })
-
         return response.status(200).send({
           token: user.confirmation_token,
           message: "Congratulation, register is success. We sen to your email address confirmation link, please confirm him."
@@ -75,14 +71,15 @@ class RegisterController {
     }
 
     async confirmEmail({
-        params,
+        request,
         session,
         response
     }) {
         //
         // Get user with  confirmation token
         //
-        const user = await User.findBy('confirmation_token', params.token)
+        const userToken = request.post();
+        const user = await User.findBy('confirmation_token', userToken.token)
         
         //
         // Set confirmation to null and is_active to true
@@ -98,14 +95,11 @@ class RegisterController {
         //
         // Display success message
         //
-        session.flash({ 
-            notification : {
-                type: 'success',
-                message: 'Your email address has been confirm'
-            }
-        })
 
-        return response.redirect('/login')
+        return response.status(200).send({
+          userToken: user.register_user_token,
+          message: 'Thanks, your mail has been successfully verified'
+        })
     }
 }
 

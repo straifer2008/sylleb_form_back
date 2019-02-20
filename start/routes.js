@@ -20,7 +20,7 @@ Route.on('/').render('home').as('home')
 
 Route.get('register', 'Auth/RegisterController.showRegisterForm')
 Route.post('register', 'Auth/RegisterController.register')
-Route.get('confirm-register/:token', 'Auth/RegisterController.confirmEmail')
+Route.post('confirm-register', 'Auth/RegisterController.confirmEmail')
 Route.get('login', 'Auth/LoginController.showLoginForm')
 Route.post('login', 'Auth/LoginController.login').as('login')
 Route.get('logout', 'Auth/AuthenticatedController.logout')
