@@ -4,7 +4,10 @@ class AuthenticatedController {
     async logout({ auth, response }) {
         await auth.logout()
 
-        return response.redirect('/login')
+        return response.status(200).send({
+            type: 'success',
+            message: 'Log Uot is complete'
+        })
     }
 }
 

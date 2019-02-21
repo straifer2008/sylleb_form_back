@@ -28,9 +28,11 @@ class PasswordResetController {
           })
 
           if (validation.fails()) {
-              session.withErrors(validation.messages()).flashAll()
 
-              return response.redirect('back')
+              return response.status(400).send({
+                type: 'danger',
+                message: validation.messages()
+              })
           }
 
           try {
@@ -54,98 +56,93 @@ class PasswordResetController {
                     .subject('Password reset link')
                 })
 
-                session.flash({ 
-                    notification: {
-                        type: 'success',
-                        message: 'We sent to your email address reset password link'
-                    }
+                return response.status(200).send({
+                  type: 'success',
+                  message: 'We sent to your email address reset password link'
                 })
-                return response.redirect('back')
           } catch (error) {
-              session.flash({
-                notification: {
-                  type: 'danger',
-                  message: 'Sorry, there is no user with this email address'
-                }
-              })
+            return response.status(200).send({
+              type: 'danger',
+              message: 'Sorry, there is no user with this email address'
+            })
           }
     }
 
-    async shoResetForm(params, view) {
-        return view.render('auth.password.reset', { token: params.token })
-    }
+    async reset({
+      request,
+      session,
+      response
+    }) {
+        const reqEmail = request.input('email');
+        const reqToken = request.input('token')
+        const reqPassword = request.input('password')
 
-    async reset({ request, session, response }) {
         //
         // Validate form inputs
         //
-        const validation = validateAll(request.all(), {
-            token: 'require',
-            email: 'require',
-            password: 'require|confirmed',
-        })
-
+        const rules = {
+          token: 'required',
+          email: 'required|email',
+          password: 'required|confirmed'
+        }
+        const validation = await validateAll(request.post(), rules)
         if (validation.fails()) {
-            session.withErrors(validation.message()).flashExcept(['password', 'password_confirmation'])
-            
-            return response.redirect('back')
+            return response.status(400).send({
+              type: 'danger',
+              message: validation.messages() ? validation.messages() : 'Validation error'
+            })
         }
 
         try {
             //
             // Get user by the provider email
             //
-            const user = User.findBy('email', request.input('email'))
+            const user = await User.findBy('email', reqEmail)
+            if (!user) {
+              return response.status(400).send({
+                type: 'danger',
+                message: 'This user is not exist'
+              })
+            }
 
             //
             // Check if password reet token exist for user
             //
-            const token = PasswordReset.query
-              .where('email', user.email)
-              .where('token', request.input('token'))
-              .first()
+
+            const token = await PasswordReset.findBy('token', reqToken)
 
               if (!token) {
-                session.flash({
-                  notification: {
-                    type: 'danger',
-                    message: 'This password reset token is not exist'
-                  }
+                return response.status(400).send({
+                  type: 'danger',
+                  message: 'This password reset token is not exist or entered email not exist user'
                 })
               }
-
-              user.password = await Hash.make(request.input('password'))
+              
+              user.password = await Hash.make(reqPassword)
               await user.save()
 
               //
               // Delete password reset token
               //
-              await PasswordReset.query().where('email', user.email).delete()
+              
+              const userResetPassword = await PasswordReset.findBy('email', user.email)
+              userResetPassword.delete()
 
               //
-              // Display succes message
+              // Display success message
               //
-              session.flash({
-                notification: {
-                  type: 'success',
-                  message: 'Congratulations! Password has been reset'
-                }
+              return response.status(200).send({
+                type: 'success',
+                message: 'Congratulations! Password has been reset'
               })
-
-              return response.redirect('/login')
-
         } catch (error) {
             //
             // Display error message
             //
-            session.flash({ 
-                notification: {
-                    type: 'danger',
-                    message: 'Sorry, there is no user with this email address'
-                }
+            return response.status(400).send({
+              type: 'danger',
+              message: 'Sorry, there is no user with this email address'
             })
-
-            return response.redirect('back')
         }
     }
 }

@@ -4,11 +4,11 @@ const User = use('App/Models/User')
 const Hash = use('Hash')
 
 class LoginController {
-  showLoginForm({
-    view
-  }) {
-    return view.render('auth.login')
-  }
+  // showLoginForm({
+  //   view
+  // }) {
+  //   return view.render('auth.login')
+  // }
 
   async login({
     request,
@@ -23,7 +23,7 @@ class LoginController {
       email,
       password,
       remember
-    } = request.all()
+    } = request.post()
 
     //
     // Retrieve user base on the form data
