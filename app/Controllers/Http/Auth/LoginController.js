@@ -4,21 +4,15 @@ const User = use('App/Models/User')
 const Hash = use('Hash')
 
 class LoginController {
-  // showLoginForm({
-  //   view
-  // }) {
-  //   return view.render('auth.login')
-  // }
-
   async login({
     request,
     auth,
     response
   }) {
+
     //
     // Get form data
-    // 
-
+    //
     const {
       email,
       password,
@@ -38,7 +32,9 @@ class LoginController {
     //
     if (user) {
       const passwordVerified = await Hash.verify(password, user.password)
+
       if (passwordVerified) {
+
         //
         // Login user
         //

@@ -8,15 +8,14 @@ const Mail = use('Mail')
 const randomstring = require("randomstring")
 
 class RegisterController {
-    showRegisterForm({view}) {
-        return view.render('auth.register')
-    }
-
     async register({
         request,
-        session,
         response
       }) {
+        const userName = request.input('username', '')
+        const userEmail = request.input('email', '')
+        const userPassword = request.input('password', '')
+
         //
         //Validate form
         //
@@ -25,23 +24,21 @@ class RegisterController {
             email: 'required|email|unique:users,email',
             password: 'required'
         }
-
         const validation = await validate(request.all(), rules)
         if (validation.fails()) {
-          session
-            .withErrors(validation.messages())
-            .flashExcept(['password'])
-            
-          return response.status(400).send(validation.messages());
+          return response.status(400).send({
+            type: 'danger',
+            message: validation.messages()
+          });
         }
 
         //
         //Create user
         //
         const user = await User.create({ 
-            username : request.input('username', ''),
-            email : request.input('email', ''),
-            password : request.input('password', ''),
+            username : userName,
+            email: userEmail,
+            password: userPassword,
             confirmation_token: randomstring.generate({
               length: 40
             }),
@@ -63,7 +60,6 @@ class RegisterController {
         //
         //Display success message
         //
-
         return response.status(200).send({
           token: user.confirmation_token,
           message: "Congratulation, register is success. We sen to your email address confirmation link, please confirm him."
@@ -72,9 +68,9 @@ class RegisterController {
 
     async confirmEmail({
         request,
-        session,
         response
     }) {
+
         //
         // Get user with  confirmation token
         //
@@ -95,7 +91,6 @@ class RegisterController {
         //
         // Display success message
         //
-
         return response.status(200).send({
           userToken: user.register_user_token,
           message: 'Thanks, your mail has been successfully verified'

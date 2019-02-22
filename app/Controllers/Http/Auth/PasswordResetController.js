@@ -17,7 +17,6 @@ class PasswordResetController {
 
     async sendResetLinkEmail({
         request,
-        session,
         response
       }) {
           //
@@ -70,10 +69,7 @@ class PasswordResetController {
 
     async reset({
       request,
-      session,
-      response
-    }) {
-        const reqEmail = request.input('email');
+      response}) {
         const reqToken = request.input('token')
         const reqPassword = request.input('password')
 
@@ -82,7 +78,6 @@ class PasswordResetController {
         //
         const rules = {
           token: 'required',
-          email: 'required|email',
           password: 'required|confirmed'
         }
         const validation = await validateAll(request.post(), rules)
@@ -94,48 +89,48 @@ class PasswordResetController {
         }
 
         try {
+
+            //
+            // Check if password reet token exist for user
+            //
+            const token = await PasswordReset.findBy('token', reqToken)
+
+            if (!token) {
+              return response.status(400).send({
+                type: 'danger',
+                message: 'This password reset token is not exist'
+              })
+            }
+
             //
             // Get user by the provider email
             //
-            const user = await User.findBy('email', reqEmail)
+            const user = await User.findBy('email', token.email)
             if (!user) {
               return response.status(400).send({
                 type: 'danger',
                 message: 'This user is not exist'
               })
             }
+            user.password = reqPassword
+
+            await user.save()
 
             //
-            // Check if password reet token exist for user
+            // Delete password reset token
             //
+            const userResetPassword = await PasswordReset.findBy('token', reqToken)
+            userResetPassword.delete()
 
-            const token = await PasswordReset.findBy('token', reqToken)
-
-              if (!token) {
-                return response.status(400).send({
-                  type: 'danger',
-                  message: 'This password reset token is not exist or entered email not exist user'
-                })
-              }
-              
-              user.password = await Hash.make(reqPassword)
-              await user.save()
-
-              //
-              // Delete password reset token
-              //
-              
-              const userResetPassword = await PasswordReset.findBy('email', user.email)
-              userResetPassword.delete()
-
-              //
-              // Display success message
-              //
-              return response.status(200).send({
-                type: 'success',
-                message: 'Congratulations! Password has been reset'
-              })
+            //
+            // Display success message
+            //
+            return response.status(200).send({
+              type: 'success',
+              message: 'Congratulations! Password has been reset'
+            })
         } catch (error) {
+
             //
             // Display error message
             //
