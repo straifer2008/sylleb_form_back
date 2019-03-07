@@ -28,7 +28,7 @@ class RegisterController {
         if (validation.fails()) {
           return response.status(400).send({
             type: 'danger',
-            message: validation.messages()
+            message: validation.messages()[0].message
           });
         }
 
@@ -74,9 +74,9 @@ class RegisterController {
         //
         // Get user with  confirmation token
         //
-        const userToken = request.post();
+        const userToken = request.post('token')      
         const user = await User.findBy('confirmation_token', userToken.token)
-        
+
         //
         // Set confirmation to null and is_active to true
         //
@@ -91,10 +91,7 @@ class RegisterController {
         //
         // Display success message
         //
-        return response.status(200).send({
-          userToken: user.register_user_token,
-          message: 'Thanks, your mail has been successfully verified'
-        })
+        return response.status(200).send('Thanks, your mail has been successfully verified')
     }
 }
 

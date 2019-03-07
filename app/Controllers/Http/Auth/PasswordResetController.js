@@ -60,7 +60,7 @@ class PasswordResetController {
                   message: 'We sent to your email address reset password link'
                 })
           } catch (error) {
-            return response.status(200).send({
+            return response.status(500).send({
               type: 'danger',
               message: 'Sorry, there is no user with this email address'
             })
@@ -96,7 +96,7 @@ class PasswordResetController {
             const token = await PasswordReset.findBy('token', reqToken)
 
             if (!token) {
-              return response.status(400).send({
+              return response.status(500).send({
                 type: 'danger',
                 message: 'This password reset token is not exist'
               })
