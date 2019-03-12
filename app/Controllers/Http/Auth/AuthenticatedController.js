@@ -1,14 +1,20 @@
 'use strict'
 
 class AuthenticatedController {
-    async logout({ auth, response }) {
-        await auth.logout()
 
-        return response.status(200).send({
+    async logout({
+        response,
+        auth,
+    }) {
+        await auth
+                .authenticator('jwt')
+                .revokeTokens(auth.current.user, [auth.getAuthHeader()])
+        return response.status(200).json({
             type: 'success',
-            message: 'Log Uot is complete'
+            message: 'Logout success'
         })
     }
+
 }
 
 module.exports = AuthenticatedController

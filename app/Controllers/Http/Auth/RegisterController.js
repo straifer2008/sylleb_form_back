@@ -35,7 +35,7 @@ class RegisterController {
         //
         //Create user
         //
-        const user = await User.create({ 
+        const user = await User.create({
             username : userName,
             email: userEmail,
             password: userPassword,
@@ -44,8 +44,10 @@ class RegisterController {
             }),
             register_user_token: randomstring.generate({
               length: 40
-            }),
+            })
         })
+
+        user.roles().attach([2])
 
         //
         //Send confirmation email
@@ -61,7 +63,7 @@ class RegisterController {
         //Display success message
         //
         return response.status(200).send({
-          token: user.confirmation_token,
+          type: 'success',
           message: "Congratulation, register is success. We sen to your email address confirmation link, please confirm him."
         })
     }
@@ -74,24 +76,48 @@ class RegisterController {
         //
         // Get user with  confirmation token
         //
-        const userToken = request.post('token')      
+        const userToken = request.post('token')
+        if (!userToken) {
+          return response.status(403).send({
+            type: 'danger',
+            message: 'No confirmation token'
+          })
+        }
+
         const user = await User.findBy('confirmation_token', userToken.token)
 
-        //
-        // Set confirmation to null and is_active to true
-        //
-        user.confirmation_token = null
-        user.is_active = true
+        if (user) {
+          try {
+           //
+           // Set confirmation to null and is_active to true
+           //
+           user.confirmation_token = null
+           user.is_active = true
 
-        //
-        // Persist user to database
-        //
-        await user.save()
+           //
+           // Persist user to database
+           //
+           await user.save()
 
-        //
-        // Display success message
-        //
-        return response.status(200).send('Thanks, your mail has been successfully verified')
+           //
+           // Display success message
+           //
+           return response.status(200).send({
+             type: 'success',
+             message: 'Thanks, your mail has been successfully verified',
+           })
+          } catch (error) {
+            return response.status(500).send({
+              type: 'danger',
+              message: 'Some confirmation error'
+            })
+          }
+        } else {
+          return response.status(403).send({
+            type: 'danger',
+            message: 'Confirmation token not valid'
+          })
+        }
     }
 }
 

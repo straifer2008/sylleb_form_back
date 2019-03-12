@@ -38,11 +38,20 @@ class LoginController {
         //
         // Login user
         //
-        await auth.remember(!!remember).login(user)
-
+        const token = await auth.generate(user)
+        const permissions = await user.getPermissions()
+        
         return response.status(200).send({
-          userToken: user.register_user_token,
-          message: 'User verify is success'
+          type: 'success',
+          message: 'User verify is success',
+          user: {
+            name: user.username,
+            id: user.id,
+            created: user.created_at,
+            updated: user.updated_at,
+            token,
+            permissions
+          }
         })
       }
     }
