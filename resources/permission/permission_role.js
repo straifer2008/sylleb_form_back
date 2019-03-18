@@ -9,16 +9,6 @@ module.exports = [
       actions: ['read', 'create', 'update', 'delete']
     }
   },
- {
-    role: {
-      name: 'Global Admin',
-      slug: 'global_admin'
-    },
-    permissions: {
-      slug: 'userForm',
-      actions: ['read', 'create', 'update', 'delete']
-    }
-  },
   {
      role: {
        name: 'Base User',

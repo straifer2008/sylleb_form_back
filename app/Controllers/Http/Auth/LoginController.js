@@ -46,12 +46,13 @@ class LoginController {
           message: 'User verify is success',
           user: {
             name: user.username,
+            email: user.email,
             id: user.id,
             created: user.created_at,
             updated: user.updated_at,
-            token,
-            permissions
-          }
+          },
+          token,
+          permissions
         })
       }
     }

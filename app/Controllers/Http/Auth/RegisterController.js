@@ -47,7 +47,7 @@ class RegisterController {
             })
         })
 
-        user.roles().attach([2])
+        user.roles().attach([4])
 
         //
         //Send confirmation email
